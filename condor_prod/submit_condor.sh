@@ -18,9 +18,9 @@
 CMSSWENV=/net/hisrv0001/home/luck/CMSSW_4_4_4/
 
 # This is the python config which is run using cmsRun.
-# Can be relative or absolute path from submit_condor.sh
+# Must be relative path from submit_condor.sh
 #CONFIGFILE=runForest_44X.py
-CONFIGFILE=/net/hisrv0001/home/luck/CMSSW_4_4_4/src/CmsHi/HiL1Algos/prod/runForest_44X_MC.py
+CONFIGFILE=runForest_44X_MC.py
 
 # This is the file list of inputs to give to the python config. Shell
 # globbing is useful here.
