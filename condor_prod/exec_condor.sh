@@ -24,7 +24,7 @@ DESTINATION=$3
 OUTFILE=$4
 
 source /osg/app/cmssoft/cms/cmsset_default.sh
-export SCRAM_ARCH=slc5_amd64_gcc434
+export SCRAM_ARCH=slc5_amd64_gcc462
 cd $CMSSWENV
 eval `scramv1 runtime -sh` 
 cd -
@@ -34,4 +34,4 @@ cmsRun $CONFIGFILE ${@:5} outputFile=${CONFIGFILE}_output.root
 
 #after the output has finished move it to Hadoop
 #note: never move large files over anything in /net on cgate
-mv ${CONFIGFILE}_output.root ${DESTINATION}/${OUTFILE}
+#mv ${CONFIGFILE}_output.root ${DESTINATION}/${OUTFILE}
