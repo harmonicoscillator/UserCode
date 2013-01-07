@@ -46,6 +46,10 @@
 #include <TObjArray.h>
 #include <TString.h>
 //#include <TEllipse.h>
+
+#include "CLHEP/Random/RandomEngine.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 //#endif
 
 #ifndef _runglauber_
@@ -54,6 +58,9 @@
 //#endif
 
 using namespace std;
+using namespace edm;
+
+CLHEP::HepRandomEngine* randomEngine;
 
 //---------------------------------------------------------------------------------
 void runAndSaveNtuple(Int_t n,
@@ -300,6 +307,10 @@ TGlauNucleus::TGlauNucleus(TString iname, Int_t iN, Double_t iR, Double_t ia, Do
     cout << "Setting up nucleus " << iname << endl;
     Lookup(iname);
   }
+
+  edm::Service<RandomNumberGenerator> rng;
+  randomEngine = &(rng->getEngine());
+  gRandom->SetSeed(rng->mySeed());
 }
 
 TGlauNucleus::~TGlauNucleus()
@@ -447,8 +458,8 @@ void TGlauNucleus::ThrowNucleons(Double_t xshift)
   if (fN==2 && hulthen) { //special treatmeant for Hulten
 
     Double_t r = fFunction->GetRandom()/2;
-    Double_t phi = gRandom->Rndm() * 2 * TMath::Pi() ;
-    Double_t ctheta = 2*gRandom->Rndm() - 1 ;
+    Double_t phi = randomEngine->flat() * 2 * TMath::Pi() ;
+    Double_t ctheta = 2*randomEngine->flat() - 1 ;
     Double_t stheta = sqrt(1-ctheta*ctheta);
      
     TGlauNucleon *nucleon1=(TGlauNucleon*)(fNucleons->At(0));
@@ -471,8 +482,8 @@ void TGlauNucleus::ThrowNucleons(Double_t xshift)
     while(1) {
       fTrials++;
       Double_t r = fFunction->GetRandom();
-      Double_t phi = gRandom->Rndm() * 2 * TMath::Pi() ;
-      Double_t ctheta = 2*gRandom->Rndm() - 1 ;
+      Double_t phi = randomEngine->flat() * 2 * TMath::Pi() ;
+      Double_t ctheta = 2*randomEngine->flat() - 1 ;
       Double_t stheta = TMath::Sqrt(1-ctheta*ctheta);
       Double_t x = r * stheta * cos(phi) + xshift;
       Double_t y = r * stheta * sin(phi);      
@@ -539,6 +550,8 @@ TGlauberMC::TGlauberMC(TString NA, TString NB, Double_t xsect) :
   // TString title(Form("Glauber %s+%s Version",fANucleus.GetName(),fBNucleus.GetName()));
   // SetName(name);
   // SetTitle(title);
+  edm::Service<RandomNumberGenerator> rng;
+  randomEngine = &(rng->getEngine());
 }
 
 Bool_t TGlauberMC::CalcEvent(Double_t bgen)
@@ -847,7 +860,7 @@ TObjArray *TGlauberMC::GetNucleons()
 Bool_t TGlauberMC::NextEvent(Double_t bgen)
 {
   if(bgen<0) 
-    bgen = TMath::Sqrt((fBMax*fBMax-fBMin*fBMin)*gRandom->Rndm()+fBMin*fBMin);
+    bgen = TMath::Sqrt((fBMax*fBMax-fBMin*fBMin)*randomEngine->flat()+fBMin*fBMin);
 
   return CalcEvent(bgen);
 }

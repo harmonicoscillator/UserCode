@@ -20,7 +20,10 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('myOutputFile.root')
 )
 
-  
+process.load('Configuration.StandardSequences.Services_cff')
+
+process.RandomNumberGeneratorService.GlauberProducer = process.RandomNumberGeneratorService.generator.clone(initialSeed = 12345)
+
 process.p = cms.Path(process.GlauberProducer)
 
 process.e = cms.EndPath(process.out)

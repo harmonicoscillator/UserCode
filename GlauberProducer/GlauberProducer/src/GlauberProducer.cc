@@ -13,7 +13,7 @@
 //
 // Original Author:  Richard Alexander Barbieri
 //         Created:  Wed Jan  2 13:31:36 EST 2013
-// $Id$
+// $Id: GlauberProducer.cc,v 1.1 2013/01/03 20:22:39 richard Exp $
 //
 //
 
@@ -37,6 +37,13 @@
 #include "HepMC/HeavyIon.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Candidate/interface/Particle.h"
+
 
 #include "../runglauber_v1.5.cc"
 
@@ -81,6 +88,7 @@ GlauberProducer::GlauberProducer(const edm::ParameterSet& iConfig)
 {
   //register your products
   produces<edm::GenHIEvent>();
+  produces<reco::GenParticleCollection>();
   //now do what ever other initialization is needed
 }
 
@@ -102,7 +110,7 @@ GlauberProducer::~GlauberProducer()
 void
 GlauberProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
+  //using namespace edm;
 
    //book
    //if(!(pdt.isValid())) iSetup.getData(pdt);
@@ -157,6 +165,32 @@ GlauberProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 					   ));
  
    iEvent.put(pGenHI);
+
+   TObjArray *nucleons = mcg->GetNucleons();
+   //size_t size = nucleons->GetLast() * sizeof(nucleons->First());
+   std::auto_ptr<reco::GenParticleCollection> pGenColl(new reco::GenParticleCollection());
+   for(int i = 0; i < nucleons->GetLast(); i++)
+   {
+     TGlauNucleon *nucleon = (TGlauNucleon*) nucleons->At(i);
+     const reco::Candidate::LorentzVector *vec = new reco::Candidate::LorentzVector();
+     const reco::Candidate::Point *loc = new reco::Candidate::Point(nucleon->GetX(), nucleon->GetY(), nucleon->GetZ());
+
+     int status = (int) nucleon->IsWounded();
+
+     const reco::GenParticle *part = new reco::GenParticle(0,
+							   *vec,
+							   *loc,
+							   0,
+							   status,
+							   true
+       );
+     
+     pGenColl->push_back(*part);
+     
+   }
+
+   iEvent.put(pGenColl);
+   
    delete mcg;
   
 }
