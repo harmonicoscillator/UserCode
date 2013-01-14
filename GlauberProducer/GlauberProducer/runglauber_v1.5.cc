@@ -341,20 +341,20 @@ void TGlauNucleus::Lookup(TString name)
 {
   SetName(name);
 
-  if      (TString(name) == "p") {fN = 1;   fR = 0.6;   fA = 0;      fW =  0;      fF = 0;}
-  else if (TString(name) == "d") {fN = 2;   fR = 0.01;  fA = 0.5882; fW =  0;      fF = 1;}
-  else if (TString(name) == "dh") {fN = 2;   fR = 0.01;  fA = 0.5882; fW =  0;      fF = 3;}
+  if      (TString(name) == "p")   {fN = 1;   fR = 0.6;   fA = 0;      fW =  0;      fF = 0;}
+  else if (TString(name) == "d")   {fN = 2;   fR = 0.01;  fA = 0.5882; fW =  0;      fF = 1;}
+  else if (TString(name) == "dh")  {fN = 2;   fR = 0.01;  fA = 0.5882; fW =  0;      fF = 3;}
   else if (TString(name) == "dhh") {fN = 2;   fR = 0.01;  fA = 0.5882; fW =  0;      fF = 4;}
-  else if (TString(name) == "O") {fN = 16;  fR = 2.608; fA = 0.513;  fW = -0.051;  fF = 1;}
-  else if (TString(name) == "Si") {fN = 28;  fR = 3.34;  fA = 0.580;  fW = -0.233;  fF = 1;}
-  else if (TString(name) == "S") {fN = 32;  fR = 2.54;  fA = 2.191;  fW =  0.16;   fF = 2;}
-  else if (TString(name) == "Ca") {fN = 40;  fR = 3.766; fA = 0.586;  fW = -0.161;  fF = 1;}
-  else if (TString(name) == "Ni") {fN = 58;  fR = 4.309; fA = 0.517;  fW = -0.1308; fF = 1;}
-  else if (TString(name) == "Cu") {fN = 63;  fR = 4.2;   fA = 0.596;  fW =  0;      fF = 1;}
-  else if (TString(name) == "W") {fN = 186; fR = 6.58;  fA = 0.480;  fW =  0;      fF = 1;}
-  else if (TString(name) == "Au") {fN = 197; fR = 6.38;  fA = 0.535;  fW =  0;      fF = 1;}
-  else if (TString(name) == "Pb") {fN = 208; fR = 6.62;  fA = 0.546;  fW =  0;      fF = 1;}
-  else if (TString(name) == "U") {fN = 238; fR = 6.81;  fA = 0.6;    fW =  0;      fF = 1;}
+  else if (TString(name) == "O")   {fN = 16;  fR = 2.608; fA = 0.513;  fW = -0.051;  fF = 1;}
+  else if (TString(name) == "Si")  {fN = 28;  fR = 3.34;  fA = 0.580;  fW = -0.233;  fF = 1;}
+  else if (TString(name) == "S")   {fN = 32;  fR = 2.54;  fA = 2.191;  fW =  0.16;   fF = 2;}
+  else if (TString(name) == "Ca")  {fN = 40;  fR = 3.766; fA = 0.586;  fW = -0.161;  fF = 1;}
+  else if (TString(name) == "Ni")  {fN = 58;  fR = 4.309; fA = 0.517;  fW = -0.1308; fF = 1;}
+  else if (TString(name) == "Cu")  {fN = 63;  fR = 4.2;   fA = 0.596;  fW =  0;      fF = 1;}
+  else if (TString(name) == "W")   {fN = 186; fR = 6.58;  fA = 0.480;  fW =  0;      fF = 1;}
+  else if (TString(name) == "Au")  {fN = 197; fR = 6.38;  fA = 0.535;  fW =  0;      fF = 1;}
+  else if (TString(name) == "Pb")  {fN = 208; fR = 6.62;  fA = 0.546;  fW =  0;      fF = 1;}
+  else if (TString(name) == "U")   {fN = 238; fR = 6.81;  fA = 0.6;    fW =  0;      fF = 1;}
   else {
     cout << "Could not find nucleus " << name << endl;
     return;

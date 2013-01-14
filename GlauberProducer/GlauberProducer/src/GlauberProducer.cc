@@ -5,15 +5,15 @@
 // 
 /**\class GlauberProducer GlauberProducer.cc GlauberProducer/GlauberProducer/src/GlauberProducer.cc
 
- Description: [one line class summary]
+   Description: [one line class summary]
 
- Implementation:
-     [Notes on implementation]
+   Implementation:
+   [Notes on implementation]
 */
 //
 // Original Author:  Richard Alexander Barbieri
 //         Created:  Wed Jan  2 13:31:36 EST 2013
-// $Id: GlauberProducer.cc,v 1.1 2013/01/03 20:22:39 richard Exp $
+// $Id: GlauberProducer.cc,v 1.2 2013/01/07 20:08:46 richard Exp $
 //
 //
 
@@ -52,23 +52,23 @@
 //
 
 class GlauberProducer : public edm::EDProducer {
-   public:
-      explicit GlauberProducer(const edm::ParameterSet&);
-      ~GlauberProducer();
+public:
+  explicit GlauberProducer(const edm::ParameterSet&);
+  ~GlauberProducer();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+private:
+  virtual void beginJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
       
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+  virtual void beginRun(edm::Run&, edm::EventSetup const&);
+  virtual void endRun(edm::Run&, edm::EventSetup const&);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+  virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
 };
 
@@ -96,8 +96,8 @@ GlauberProducer::GlauberProducer(const edm::ParameterSet& iConfig)
 GlauberProducer::~GlauberProducer()
 {
  
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 
 }
 
@@ -110,88 +110,90 @@ GlauberProducer::~GlauberProducer()
 void
 GlauberProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //using namespace edm;
-
-   //book
-   //if(!(pdt.isValid())) iSetup.getData(pdt);
+  //book
+  //if(!(pdt.isValid())) iSetup.getData(pdt);
  
-   double b = -1;
-   int npart = -1;
-   int ncoll = 0;
-   int nhard = 0;
-   Float_t phi = 0;
-   Float_t ecc = -1;
+  double b = -1;
+  int npart = -1;
+  int ncoll = 0;
+  int nhard = 0;
+  Float_t phi = 0;
+  Float_t ecc = -1;
  
-   int nCharged = 0;
-   int nChargedMR = 0;
-   int nChargedPtCut = 0; // NchargedPtCut bym
-   int nChargedPtCutMR = 0; // NchargedPtCutMR bym
+  int nCharged = 0;
+  int nChargedMR = 0;
+  int nChargedPtCut = 0; // NchargedPtCut bym
+  int nChargedPtCutMR = 0; // NchargedPtCutMR bym
  
-   double meanPt = 0;
-   double meanPtMR = 0;
-   double EtMR = 0; // Normalized of total energy bym
-   //double TotEnergy = 0; // Total energy bym
+  double meanPt = 0;
+  double meanPtMR = 0;
+  double EtMR = 0; // Normalized of total energy bym
 
-   //run Glauber
-   TString Pb = "Pb";
-   TGlauberMC *mcg = new TGlauberMC(Pb, Pb, 42); //last argument is Xsection?
-   mcg->SetMinDistance(0);
-   mcg->Run(1);
+  //run Glauber
+  TString NA = "Pb";
+  TString NB = "Pb";
+  Double_t xsec = 65; // cross section, millibarns (should be corrected)
+  TGlauberMC *mcg = new TGlauberMC(NA, NB, xsec);
+  mcg->SetMinDistance(0);
+  mcg->Run(1);
 
-   b = mcg->GetB();
-   npart = mcg->GetNpart();
-   ncoll = mcg->GetNcoll();
+  b = mcg->GetB();
+  npart = mcg->GetNpart();
+  ncoll = mcg->GetNcoll();
 
-   TNtuple *glauberResults = mcg->GetNtuple();
-   glauberResults->SetBranchAddress("Psi2PART", &phi);
-   glauberResults->SetBranchAddress("Ecc2PART", &ecc);
-   glauberResults->GetEntry(0);
+  TNtuple *glauberResults = mcg->GetNtuple();
+  glauberResults->SetBranchAddress("Psi2PART", &phi);
+  glauberResults->SetBranchAddress("Ecc2PART", &ecc);
+  glauberResults->GetEntry(0);
    
 
-   //push
-   std::auto_ptr<edm::GenHIEvent> pGenHI(new edm::GenHIEvent(b,
-							     npart,
-							     ncoll,
-							     nhard,
-							     phi, 
-							     ecc,
-							     nCharged,
-							     nChargedMR,
-							     meanPt,
-							     meanPtMR,   
-							     EtMR, 
-							     nChargedPtCut,
-							     nChargedPtCutMR
-					   ));
+  //push
+  std::auto_ptr<edm::GenHIEvent> pGenHI(new edm::GenHIEvent(b,
+							    npart,
+							    ncoll,
+							    nhard,
+							    phi, 
+							    ecc,
+							    nCharged,
+							    nChargedMR,
+							    meanPt,
+							    meanPtMR,   
+							    EtMR, 
+							    nChargedPtCut,
+							    nChargedPtCutMR
+					  ));
  
-   iEvent.put(pGenHI);
+  iEvent.put(pGenHI);
 
-   TObjArray *nucleons = mcg->GetNucleons();
-   //size_t size = nucleons->GetLast() * sizeof(nucleons->First());
-   std::auto_ptr<reco::GenParticleCollection> pGenColl(new reco::GenParticleCollection());
-   for(int i = 0; i < nucleons->GetLast(); i++)
-   {
-     TGlauNucleon *nucleon = (TGlauNucleon*) nucleons->At(i);
-     const reco::Candidate::LorentzVector *vec = new reco::Candidate::LorentzVector();
-     const reco::Candidate::Point *loc = new reco::Candidate::Point(nucleon->GetX(), nucleon->GetY(), nucleon->GetZ());
+  TObjArray *nucleons = mcg->GetNucleons();
+  //size_t size = nucleons->GetLast() * sizeof(nucleons->First());
+  std::auto_ptr<reco::GenParticleCollection> pGenColl(new reco::GenParticleCollection());
+  for(int i = 0; i < nucleons->GetSize(); i++)
+  {
+    TGlauNucleon *nucleon = (TGlauNucleon*)nucleons->At(i);
+    //Int_t charge = 0;
+    const reco::Candidate::LorentzVector *vec = new reco::Candidate::LorentzVector();
+    const reco::Candidate::Point *loc = new reco::Candidate::Point(nucleon->GetX(),
+								   nucleon->GetY(),
+								   nucleon->GetZ());
+    Int_t pdgID = (Int_t)nucleon->IsInNucleusA();
+    Int_t status = nucleon->GetNColl();
 
-     int status = (int) nucleon->IsWounded();
-
-     const reco::GenParticle *part = new reco::GenParticle(0,
-							   *vec,
-							   *loc,
-							   0,
-							   status,
-							   true
-       );
+    const reco::GenParticle *part = new reco::GenParticle(0,//charge,
+							  *vec,
+							  *loc,
+							  pdgID,
+							  status,
+							  true
+      );
      
-     pGenColl->push_back(*part);
+    pGenColl->push_back(*part);
      
-   }
+  }
 
-   iEvent.put(pGenColl);
+  iEvent.put(pGenColl);
    
-   delete mcg;
+  delete mcg;
   
 }
 
