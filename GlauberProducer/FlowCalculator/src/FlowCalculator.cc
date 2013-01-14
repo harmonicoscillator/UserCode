@@ -13,7 +13,7 @@
 //
 // Original Author:  Richard Alexander Barbieri
 //         Created:  Fri Jan 11 14:36:19 EST 2013
-// $Id$
+// $Id: FlowCalculator.cc,v 1.1 2013/01/14 20:08:21 richard Exp $
 //
 //
 
@@ -185,7 +185,7 @@ iSetup.get<SetupRecord>().get(pSetup);
   Double_t     fEcc6PART=0;       //v1.5 
   Double_t     fPsi6PART=0;       //v1.5 
 
-  Int_t  totNucleons = 208*2;//pNucleons->size();
+  Int_t  totNucleons = pNucleons->size();
   for (Int_t i = 0; i < totNucleons; i++) {
     reco::GenParticle nucleon = pNucleons->at(i);
     Double_t xA = nucleon.vx();
