@@ -10,7 +10,7 @@ void saveCanvas(TCanvas *c, TString name){
   
   c->SaveAs(name+date+run+".eps");
   // c->SaveAs(name+date+run+".pdf");
-  c->SaveAs(name+date+run".C");
+  c->SaveAs(name+date+run+ ".C");
 }
 
 #endif
