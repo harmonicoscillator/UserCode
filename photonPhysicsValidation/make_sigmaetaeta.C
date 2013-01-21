@@ -8,6 +8,7 @@
 #include "TString.h"
 #include "TLegend.h"
 #include "TMath.h"
+#include "alexUtils.h"
 
 void make_sigmaetaeta(const bool save=false,
 			    const bool doPilot=true,
@@ -233,8 +234,11 @@ void make_sigmaetaeta(const bool save=false,
     {
       TString savename = "plot_sigmaetaeta_Bar";
       savename += i;
-      savename += ".eps";
-      cBar[i]->SaveAs(savename);
+      // savename += ".eps";
+      // cBar[i]->SaveAs(savename);
+      // savename += ".C";
+      // cBar[i]->SaveAs(savename);
+      saveCanvas(cBar[i],savename);
     }
 
     canvName = "cEnd";
@@ -262,8 +266,11 @@ void make_sigmaetaeta(const bool save=false,
     {
       TString savename = "plot_sigmaetaeta_End";
       savename += i;
-      savename += ".eps";
-      cEnd[i]->SaveAs(savename);
+      // savename += ".eps";
+      // cEnd[i]->SaveAs(savename);
+      // savename += ".C";
+      // cEnd[i]->SaveAs(savename);
+      saveCanvas(cEnd[i],savename);
     }
 
   }

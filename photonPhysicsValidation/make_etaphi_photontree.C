@@ -8,6 +8,7 @@
 #include "TString.h"
 #include "TLegend.h"
 #include "TMath.h"
+#include "alexUtils.h"
 
 void make_etaphi_photontree(const bool save=false,
 			    const bool doPilot=true,
@@ -88,8 +89,11 @@ void make_etaphi_photontree(const bool save=false,
     {
       TString savename = "plot_photon_etaphi_";
       savename += i;
-      savename += ".eps";
-      c[i]->SaveAs(savename);
+      // savename += ".eps";
+      // c[i]->SaveAs(savename);
+      // savename += ".C";
+      // c[i]->SaveAs(savename);
+      saveCanvas(c[i],savename);
     }
 
     canvName+=2;
@@ -108,8 +112,11 @@ void make_etaphi_photontree(const bool save=false,
     {
       TString savename = "plot_photon_swisscross_";
       savename += i;
-      savename += ".eps";
-      c2[i]->SaveAs(savename);
+      // savename += ".eps";
+      // c2[i]->SaveAs(savename);
+      // savename += ".C";
+      // c[i]->SaveAs(savename);
+      saveCanvas(c2[i],savename);
     }
     
 

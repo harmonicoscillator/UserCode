@@ -8,6 +8,7 @@
 #include "TString.h"
 #include "TLegend.h"
 #include "TMath.h"
+#include "alexUtils.h"
 
 void make_comp_plots_photontree(const bool save=false,
 				const bool doPilot=true,
@@ -283,8 +284,11 @@ void make_comp_plots_photontree(const bool save=false,
     {
       TString savename = "plot_photons_";
       savename += i;
-      savename += ".eps";
-      c[i]->SaveAs(savename);
+      // savename += ".eps";
+      // c[i]->SaveAs(savename);
+      // savename += ".C";
+      // c[i]->SaveAs(savename);
+      saveCanvas(c[i],savename);
     }
   }
 }

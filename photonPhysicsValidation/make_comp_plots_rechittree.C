@@ -8,6 +8,7 @@
 #include "TString.h"
 #include "TLegend.h"
 #include "TMath.h"
+#include "alexUtils.h"
 
 void make_comp_plots_rechittree(const bool save=false,
 				const bool doPilot=true,
@@ -149,8 +150,11 @@ void make_comp_plots_rechittree(const bool save=false,
     {
       TString savename = "plot_etaphi_rechit_"+section;
       savename += i;
-      savename += ".eps";
-      c2[i]->SaveAs(savename);
+      // savename += ".eps";
+      // c2[i]->SaveAs(savename);
+      // savename += ".C";
+      // c2[i]->SaveAs(savename);
+      saveCanvas(c2[i],savename);
     }
 
   }
@@ -187,8 +191,11 @@ void make_comp_plots_rechittree(const bool save=false,
     {
       TString savename = "plot_rechit_" + section;
       savename += i;
-      savename += ".eps";
-      c[i]->SaveAs(savename);
+      // savename += ".eps";
+      // c[i]->SaveAs(savename);
+      // savename += ".C";
+      // c[i]->SaveAs(savename);
+      saveCanvas(c[i],savename);
     }
   }
 
