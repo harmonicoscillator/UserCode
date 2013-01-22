@@ -10,6 +10,8 @@
 #include "TMath.h"
 #include "alexUtils.h"
 
+#include "../HiForest_V2_latest/hiForest.h"
+
 void make_etaphi_photontree(const bool save=false,
 			    const bool doPilot=true,
 			    const bool doMC = false,
@@ -18,33 +20,23 @@ void make_etaphi_photontree(const bool save=false,
 {
   TH1::SetDefaultSumw2();
 
-  // const bool doPilot = true;
-  // const bool doMC = false;
-  // const bool doData = false;
-
-  // const bool save = false;
-
-  TChain *mcChain = new TChain("multiPhotonAnalyzer","pilotChain");
-  if (doMC){
-    const TString mcName = "/mnt/hadoop/cms/store/user/dgulhan/pPb/Pythia_5_3_3_v0/HiForest2_v01/merged_3/*.root/multiPhotonAnalyzer/photon";
-    mcChain->Add(mcName);
-  }
-
-  TFile *pilotData;
-  TTree *pilotPhotonTree;
+  HiForest *pilotForest;
   if(doPilot){    
-    pilotData = new TFile("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/forest200kHz.root");
-    //TFile *pilotData = new TFile("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/pPb_hiForest2_11_1_zso.root");  
-    pilotPhotonTree = (TTree*)pilotData->Get("multiPhotonAnalyzer/photon");
+    pilotForest = new HiForest("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/forest200kHz.root",
+			       "pilotForest", cPPb, false);
   }
 
-  if(dataName == "") dataName = "/mnt/hadoop/cms/store/user/luck/pA2013_pilot/pPb_hiForest2_10_1_ylL.root";
+  if(dataName == "") dataName = "/mnt/hadoop/cms/store/user/luck/pA2013_forests/PA2013_HiForest_Express_r210534_stablebeams_72bunch.root";
 
-  TFile *data;
-  TTree *dataPhotonTree;
+  HiForest *dataForest;
   if(doData){
-    data = new TFile(dataName);
-    dataPhotonTree = (TTree*)data->Get("multiPhotonAnalyzer/photon");
+    dataForest = new HiForest(dataName, "dataForest", cPPb, false);
+  }
+
+  HiForest *mcForest;
+  if (doMC){
+    mcForest = new HiForest ("/mnt/hadoop/cms/store/user/luck/pA2013_MC/HiForest_pPb_Hijing_NEWFIX_v2.root",
+			     "mcForest", cPPb, true);
   }
 
   TString name;
@@ -56,21 +48,25 @@ void make_etaphi_photontree(const bool save=false,
   
   for(int i = 0; i<3; i++)
   {
-    TTree *tree;
+    HiForest *forest;
     char ii;
+    TString selection;
     if(i == 0)
     {
       if(!doPilot) continue;
-      tree = pilotPhotonTree;
+      forest = pilotForest;
       ii='0';
+      selection = "(1==1)";
     } else if (i==1) {
       if(!doData) continue;
-      tree = dataPhotonTree;
+      forest = dataForest;
       ii='1';
+      selection = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
     } else {
       if(!doMC) continue;
-      tree = mcChain;
+      forest = mcForest;
       ii='2';
+      selection = "(1==1)";
     }
 
     TString canvName = "cetaphi";
@@ -83,16 +79,12 @@ void make_etaphi_photontree(const bool save=false,
 			 36, -TMath::Pi(), TMath::Pi() );    
     etaphi[i]->SetXTitle("#eta");
     etaphi[i]->SetYTitle("#phi");
-    tree->Project(name+ii,"phi:eta");
+    forest->tree->Project(name+ii,"phi:eta",selection);
     etaphi[i]->Draw("colz");
     if(save)
     {
       TString savename = "plot_photon_etaphi_";
       savename += i;
-      // savename += ".eps";
-      // c[i]->SaveAs(savename);
-      // savename += ".C";
-      // c[i]->SaveAs(savename);
       saveCanvas(c[i],savename);
     }
 
@@ -105,17 +97,13 @@ void make_etaphi_photontree(const bool save=false,
 			     100, -1, 1.1 );
     swisscross[i]->SetXTitle("Reco. Time of Seed (ns)");
     swisscross[i]->SetYTitle("Swiss Crx Var.");
-    tree->Project(name+ii,"swissCrx:seedTime");
+    forest->tree->Project(name+ii,"swissCrx:seedTime",selection);
     swisscross[i]->Draw("colz");
 
     if(save)
     {
       TString savename = "plot_photon_swisscross_";
       savename += i;
-      // savename += ".eps";
-      // c2[i]->SaveAs(savename);
-      // savename += ".C";
-      // c[i]->SaveAs(savename);
       saveCanvas(c2[i],savename);
     }
     

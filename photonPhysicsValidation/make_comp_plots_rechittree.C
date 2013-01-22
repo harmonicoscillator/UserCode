@@ -10,6 +10,8 @@
 #include "TMath.h"
 #include "alexUtils.h"
 
+#include "../HiForest_V2_latest/hiForest.h"
+
 void make_comp_plots_rechittree(const bool save=false,
 				const bool doPilot=true,
 				const bool doMC = false,
@@ -19,41 +21,26 @@ void make_comp_plots_rechittree(const bool save=false,
 {
   TH1::SetDefaultSumw2();
 
-  // const bool doPilot = true;
-  // const bool doMC = true;
-  // const bool doData = false;
+  TString cut = "";//"(et>15)";
 
-  // const bool save = false;
-  
-  // const TString section = "eb";
-
-  TString cut = "";//"(e>15)";
-
-  TChain *mcChain = new TChain("rechitanalyzer","mcChain");
-  if (doMC){
-    const TString mcName = "/mnt/hadoop/cms/store/user/dgulhan/pPb/Pythia_5_3_3_v0/HiForest2_v01/merged_3/*.root/rechitanalyzer/" + section;
-    mcChain->Add(mcName);
-  }
-
-  TFile *pilotData;
-  TTree *pilotPhotonTree;
+  HiForest *pilotForest;
   if(doPilot){    
-    pilotData = new TFile("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/forest200kHz.root");
-    //TFile *pilotData = new TFile("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/pPb_hiForest2_11_1_zso.root");  
-    pilotPhotonTree = (TTree*)pilotData->Get("rechitanalyzer/" + section);
+    pilotForest = new HiForest("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/forest200kHz.root",
+			       "pilotForest", cPPb, false);
   }
 
-  if(dataName == "") dataName = "/mnt/hadoop/cms/store/user/luck/pA2013_pilot/pPb_hiForest2_10_1_ylL.root";
+  if(dataName == "") dataName = "/mnt/hadoop/cms/store/user/luck/pA2013_forests/PA2013_HiForest_Express_r210534_stablebeams_72bunch.root";
 
-  TFile *data;
-  TTree *dataPhotonTree;
+  HiForest *dataForest;
   if(doData){
-    data = new TFile(dataName);
-    dataPhotonTree = (TTree*)data->Get("rechitanalyzer/" + section);
+    dataForest = new HiForest(dataName, "dataForest", cPPb, false);
   }
 
-  // pilotPhotonTree->Draw("pt","","E");
-  // dataPhotonTree->Draw("pt","","E same");
+  HiForest *mcForest;
+  if (doMC){
+    mcForest = new HiForest ("/mnt/hadoop/cms/store/user/luck/pA2013_MC/HiForest_pPb_Hijing_NEWFIX_v2.root",
+			     "mcForest", cPPb, true);
+  }
 
   const Int_t numPlots = 4;
   TH1D *h[numPlots][3];
@@ -65,73 +52,85 @@ void make_comp_plots_rechittree(const bool save=false,
   for(int i = 0; i<3; i++)
   {
     int marker;
-    TTree *tree;
+    HiForest *forest;
     char ii;
     TString Yname = "counts per event";
     TString label = "";
     int markerColor;
+    TString selection;
+    Int_t totalEvents;
     if(i == 0)
     {
       if(!doPilot) continue;
-      tree = pilotPhotonTree;
+      forest = pilotForest;
       marker = 24;
-      markerColor = (int)kRed;
+      markerColor = (int)kBlack;
       ii='0';
+      selection = "(1==1)";
+      const char *selectionc = "(1==1)";
+      totalEvents = forest->tree->GetEntries(selectionc);
     } else if (i==1) {
       if(!doData) continue;
-      tree = dataPhotonTree;
+      forest = dataForest;
       marker = 20;
       markerColor = (int)kBlack;
       ii='1';
+      selection = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      const char *selectionc = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      totalEvents = forest->tree->GetEntries(selectionc);
     } else {
       if(!doMC) continue;
-      tree = mcChain;
+      forest = mcForest;
       marker = 25;
-      markerColor = (int)kBlue;
+      markerColor = (int)kRed;
       ii='2';
+      selection = "(1==1)";
+      const char *selectionc = "(1==1)";
+      totalEvents = forest->tree->GetEntries(selectionc);
     }
 
     (section == "eb") ? label="Barrel" : label = "Endcap";
 
-    name = "e";
+    name = section+".e";
     h[0][i] = new TH1D(name+ii,"",
 		       50,0,100);
     h[0][i]->SetMarkerStyle(marker);
-    h[0][i]->SetMarkerColor(markerColor);
+    h[0][i]->SetLineColor(markerColor);
     h[0][i]->SetXTitle("e " + label );
     h[0][i]->SetYTitle(Yname);
-    tree->Project(name+ii,name,cut);
-    h[0][i]->Scale(1./h[0][i]->GetEntries());
+    forest->tree->Project(name+ii,name,selection+cut);
+    //totalEvents = h[0][i]->GetEntries();
+    h[0][i]->Scale(1./totalEvents);
 
-    name = "et";
+    name = section+".et";
     h[1][i] = new TH1D(name+ii,"",
 		       50,0,100);
     h[1][i]->SetMarkerStyle(marker);
-    h[1][i]->SetMarkerColor(markerColor);
+    h[1][i]->SetLineColor(markerColor);
     h[1][i]->SetXTitle("et (GeV) " + label );
     h[1][i]->SetYTitle(Yname);
-    tree->Project(name+ii,name,cut);
-    h[1][i]->Scale(1./h[1][i]->GetEntries());
+    forest->tree->Project(name+ii,name,selection+cut);
+    h[1][i]->Scale(1./totalEvents);
 
-    name = "eta";
+    name = section+".eta";
     h[2][i] = new TH1D(name+ii,"",
 		       50,-5,5);
     h[2][i]->SetMarkerStyle(marker);
-    h[2][i]->SetMarkerColor(markerColor);
+    h[2][i]->SetLineColor(markerColor);
     h[2][i]->SetXTitle("#eta " + label );
     h[2][i]->SetYTitle(Yname);
-    tree->Project(name+ii,name,cut);
-    h[2][i]->Scale(1./h[2][i]->GetEntries());
+    forest->tree->Project(name+ii,name,selection+cut);
+    h[2][i]->Scale(1./totalEvents);
 
-    name = "phi";
+    name = section+".phi";
     h[3][i] = new TH1D(name+ii,"",
 		       18,-TMath::Pi(),TMath::Pi() );
     h[3][i]->SetMarkerStyle(marker);
-    h[3][i]->SetMarkerColor(markerColor);
+    h[3][i]->SetLineColor(markerColor);
     h[3][i]->SetXTitle("#phi " + label );
     h[3][i]->SetYTitle(Yname);
-    tree->Project(name+ii,name,cut);
-    h[3][i]->Scale(1./h[3][i]->GetEntries());
+    forest->tree->Project(name+ii,name,selection+cut);
+    h[3][i]->Scale(1./totalEvents);
     h[3][i]->SetAxisRange(0, 0.1, "Y");
 
     TString canvName = "c2etaphi"+section;
@@ -144,16 +143,12 @@ void make_comp_plots_rechittree(const bool save=false,
 			 36, -TMath::Pi(), TMath::Pi() );    
     etaphi[i]->SetXTitle("#eta");
     etaphi[i]->SetYTitle("#phi");
-    tree->Project(name+ii,"phi:eta",cut);
+    forest->tree->Project(name+ii,section+".phi:"+section+".eta",selection+cut);
     etaphi[i]->Draw("colz");
     if(save)
     {
       TString savename = "plot_etaphi_rechit_"+section;
       savename += i;
-      // savename += ".eps";
-      // c2[i]->SaveAs(savename);
-      // savename += ".C";
-      // c2[i]->SaveAs(savename);
       saveCanvas(c2[i],savename);
     }
 
@@ -161,7 +156,7 @@ void make_comp_plots_rechittree(const bool save=false,
 
   TString dataLabel = "data";
   TString pilotLabel = "pilot";
-  TString MCLabel = "epos MC";
+  TString MCLabel = "HIJING";
   TLegend *leg;
   TCanvas *c[numPlots];
 
@@ -182,19 +177,19 @@ void make_comp_plots_rechittree(const bool save=false,
       h[i][0]->DrawClone("E same");
     }
     if(doMC){
-      leg->AddEntry(h[i][2],MCLabel,"p");
-      h[i][2]->DrawClone("E same");
+      leg->AddEntry(h[i][2],MCLabel,"l");
+      h[i][2]->SetLineColor(kRed);
+      h[i][2]->DrawClone("hist same");
     }
     leg->DrawClone();
+    if(i == 0 || i == 1)
+      c[i]->SetLogy();
+
 
     if(save)
     {
       TString savename = "plot_rechit_" + section;
       savename += i;
-      // savename += ".eps";
-      // c[i]->SaveAs(savename);
-      // savename += ".C";
-      // c[i]->SaveAs(savename);
       saveCanvas(c[i],savename);
     }
   }

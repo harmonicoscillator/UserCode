@@ -10,6 +10,8 @@
 #include "TMath.h"
 #include "alexUtils.h"
 
+#include "../HiForest_V2_latest/hiForest.h"
+
 void make_sigmaetaeta(const bool save=false,
 			    const bool doPilot=true,
 			    const bool doMC = false,
@@ -18,37 +20,24 @@ void make_sigmaetaeta(const bool save=false,
 {
   TH1::SetDefaultSumw2();
 
-  // const bool doPilot = true;
-  // const bool doMC = false;
-  // const bool doData = false;
-
-  // const bool save = false;
-
-  TChain *mcChain = new TChain("multiPhotonAnalyzer","pilotChain");
-  if (doMC){
-    const TString mcName = "/mnt/hadoop/cms/store/user/dgulhan/pPb/Pythia_5_3_3_v0/HiForest2_v01/merged_3/*.root/multiPhotonAnalyzer/photon";
-    mcChain->Add(mcName);
-  }
-
-  TFile *pilotData;
-  TTree *pilotPhotonTree;
+  HiForest *pilotForest;
   if(doPilot){    
-    pilotData = new TFile("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/forest200kHz.root");
-    //TFile *pilotData = new TFile("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/pPb_hiForest2_11_1_zso.root");  
-    pilotPhotonTree = (TTree*)pilotData->Get("multiPhotonAnalyzer/photon");
+    pilotForest = new HiForest("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/forest200kHz.root",
+			       "pilotForest", cPPb, false);
   }
 
-  if(dataName == "") dataName = "/mnt/hadoop/cms/store/user/luck/pA2013_pilot/pPb_hiForest2_10_1_ylL.root";
+  if(dataName == "") dataName = "/mnt/hadoop/cms/store/user/luck/pA2013_forests/PA2013_HiForest_Express_r210534_stablebeams_72bunch.root";
 
-  TFile *data;
-  TTree *dataPhotonTree;
+  HiForest *dataForest;
   if(doData){
-    data = new TFile(dataName);
-    dataPhotonTree = (TTree*)data->Get("multiPhotonAnalyzer/photon");
+    dataForest = new HiForest(dataName, "dataForest", cPPb, false);
   }
 
-  // pilotPhotonTree->Draw("pt","","E");
-  // dataPhotonTree->Draw("pt","","E same");
+  HiForest *mcForest;
+  if (doMC){
+    mcForest = new HiForest ("/mnt/hadoop/cms/store/user/luck/pA2013_MC/HiForest_pPb_Hijing_NEWFIX_v2.root",
+			     "mcForest", cPPb, true);
+  }
 
   const Int_t numPlots = 10;
   TH1D *h[numPlots][3];
@@ -57,136 +46,147 @@ void make_sigmaetaeta(const bool save=false,
 
   for(int i = 0; i<3; i++)
   {
-    TTree *tree;
+    HiForest *forest;
     char ii;
     TString Yname = "counts per event";
+    TString selection;
+    Int_t totalEvents;
     if(i == 0)
     {
       if(!doPilot) continue;
-      tree = pilotPhotonTree;
+      forest = pilotForest;
       ii='0';
+      selection = "(1==1)";
+      const char *selectionc = "(1==1)";
+      totalEvents = forest->tree->GetEntries(selectionc);
     } else if (i==1) {
       if(!doData) continue;
-      tree = dataPhotonTree;
+      forest = dataForest;
       ii='1';
+      selection = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      const char *selectionc = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      totalEvents = forest->tree->GetEntries(selectionc);
     } else {
       if(!doMC) continue;
-      tree = mcChain;
+      forest = mcForest;
       ii='2';
+      selection = "(1==1)";
+      const char *selectionc = "(1==1)";
+      totalEvents = forest->tree->GetEntries(selectionc);
     }
-
 
     name = "sigmaIetaIeta";
     TString add = "Bar";
-    TString cut = "(abs(eta) < 1.479)";
+    TString cut = "&&(abs(eta) < 1.479)";
     h[0][i] = new TH1D(name+add+ii, "",
 		      70,0,0.03 );
     h[0][i]->SetMarkerColor(kBlack);
     h[0][i]->SetXTitle("#sigma_{#eta#eta} Barrel");
     h[0][i]->SetYTitle(Yname);
-    tree->Project(name+add+ii,name,cut);
-    h[0][i]->Scale(1./h[0][i]->GetEntries());
+    forest->tree->Project(name+add+ii,name,selection+cut);
+    totalEvents = h[0][i]->GetEntries();
+    h[0][i]->Scale(1./totalEvents);
 
     name = "sigmaIetaIeta";
     add = "End";
-    cut = "(abs(eta) > 1.479)";
+    cut = "&&(abs(eta) > 1.479)";
     h[1][i] = new TH1D(name+add+ii, "",
 		      70,0,0.1 );
     h[1][i]->SetMarkerColor(kBlack);
     h[1][i]->SetXTitle("#sigma_{#eta#eta} Endcap");
     h[1][i]->SetYTitle(Yname);
-    tree->Project(name+add+ii,name,cut);
-    h[1][i]->Scale(1./h[1][i]->GetEntries());
+    forest->tree->Project(name+add+ii,name,selection+cut);
+    h[1][i]->Scale(1./totalEvents);
 
     name = "sigmaIetaIeta";
     add = "Barlp";
-    cut = "(abs(eta) < 1.479)&&(pt<15)";
+    cut = "&&(abs(eta) < 1.479)&&(pt<15)";
     h[2][i] = new TH1D(name+add+ii, "",
 		      70,0,0.1 );
     h[2][i]->SetMarkerColor(kRed);
     h[2][i]->SetXTitle("p_{T}<15GeV");
     h[2][i]->SetYTitle(Yname);
-    tree->Project(name+add+ii,name,cut);
-    h[2][i]->Scale(1./h[2][i]->GetEntries());
+    forest->tree->Project(name+add+ii,name,selection+cut);
+    h[2][i]->Scale(1./totalEvents);
 
     name = "sigmaIetaIeta";
     add = "Endlp";
-    cut = "(abs(eta) > 1.479)&&(pt<15)";
+    cut = "&&(abs(eta) > 1.479)&&(pt<15)";
     h[3][i] = new TH1D(name+add+ii, "",
 		      70,0,0.1 );
     h[3][i]->SetMarkerColor(kRed);
     h[3][i]->SetXTitle("p_{T}<15GeV");
     h[3][i]->SetYTitle(Yname);
-    tree->Project(name+add+ii,name,cut);
-    h[3][i]->Scale(1./h[3][i]->GetEntries());
+    forest->tree->Project(name+add+ii,name,selection+cut);
+    h[3][i]->Scale(1./totalEvents);
 
     name = "sigmaIetaIeta";
     add = "Barup";
-    cut = "(abs(eta) < 1.479)&&(pt>15)";
+    cut = "&&(abs(eta) < 1.479)&&(pt>15)";
     h[4][i] = new TH1D(name+add+ii, "",
 		      70,0,0.1 );
     h[4][i]->SetMarkerColor(kBlue);
     h[4][i]->SetXTitle("p_{T}>15GeV");
     h[4][i]->SetYTitle(Yname);
-    tree->Project(name+add+ii,name,cut);
-    h[4][i]->Scale(1./h[4][i]->GetEntries());
+    forest->tree->Project(name+add+ii,name,selection+cut);
+    h[4][i]->Scale(1./totalEvents);
 
     name = "sigmaIetaIeta";
     add = "Endup";
-    cut = "(abs(eta) > 1.479)&&(pt>15)";
+    cut = "&&(abs(eta) > 1.479)&&(pt>15)";
     h[5][i] = new TH1D(name+add+ii, "",
 		      70,0,0.1 );
     h[5][i]->SetMarkerColor(kBlue);
     h[5][i]->SetXTitle("p_{T}>15GeV");
     h[5][i]->SetYTitle(Yname);
-    tree->Project(name+add+ii,name,cut);
-    h[5][i]->Scale(1./h[5][i]->GetEntries());
+    forest->tree->Project(name+add+ii,name,selection+cut);
+    h[5][i]->Scale(1./totalEvents);
 
     TString isoCut = "&& (hadronicOverEm < 0.05) && (cr4+ct4PtCut20 < 4.5)";
     
     name = "sigmaIetaIeta";
     add = "Barlpiso";
-    cut = "(abs(eta) < 1.479)&&(pt<15)";
+    cut = "&&(abs(eta) < 1.479)&&(pt<15)";
     h[6][i] = new TH1D(name+add+ii, "",
 		      70,0,0.1 );
     h[6][i]->SetMarkerColor(kCyan);
     h[6][i]->SetXTitle("p_{T}<15GeV isolated");
     h[6][i]->SetYTitle(Yname);
-    tree->Project(name+add+ii,name,cut+isoCut);
-    h[6][i]->Scale(1./h[6][i]->GetEntries());
+    forest->tree->Project(name+add+ii,name,selection+cut+isoCut);
+    h[6][i]->Scale(1./totalEvents);
 
     name = "sigmaIetaIeta";
     add = "Endlpiso";
-    cut = "(abs(eta) > 1.479)&&(pt<15)";
+    cut = "&&(abs(eta) > 1.479)&&(pt<15)";
     h[7][i] = new TH1D(name+add+ii, "",
 		      70,0,0.1 );
     h[7][i]->SetMarkerColor(kCyan);
     h[7][i]->SetXTitle("p_{T}<15GeV isolated");
     h[7][i]->SetYTitle(Yname);
-    tree->Project(name+add+ii,name,cut+isoCut);
-    h[7][i]->Scale(1./h[7][i]->GetEntries());
+    forest->tree->Project(name+add+ii,name,selection+cut+isoCut);
+    h[7][i]->Scale(1./totalEvents);
 
     name = "sigmaIetaIeta";
     add = "Barupiso";
-    cut = "(abs(eta) < 1.479)&&(pt>15)";
+    cut = "&&(abs(eta) < 1.479)&&(pt>15)";
     h[8][i] = new TH1D(name+add+ii, "",
 		      70,0,0.1 );
     h[8][i]->SetMarkerColor(kMagenta);
     h[8][i]->SetXTitle("p_{T}>15GeV isolated");
     h[8][i]->SetYTitle(Yname);
-    tree->Project(name+add+ii,name,cut+isoCut);
-    h[8][i]->Scale(1./h[8][i]->GetEntries());
+    forest->tree->Project(name+add+ii,name,selection+cut+isoCut);
+    h[8][i]->Scale(1./totalEvents);
 
     name = "sigmaIetaIeta";
     add = "Endupiso";
-    cut = "(abs(eta) > 1.479)&&(pt>15)";
+    cut = "&&(abs(eta) > 1.479)&&(pt>15)";
     h[9][i] = new TH1D(name+add+ii, "",
 		      70,0,0.1 );
     h[9][i]->SetMarkerColor(kMagenta);
     h[9][i]->SetXTitle("p_{T}>15GeV isolated");
     h[9][i]->SetYTitle(Yname);
-    tree->Project(name+add+ii,name,cut+isoCut);
-    h[9][i]->Scale(1./h[9][i]->GetEntries());
+    forest->tree->Project(name+add+ii,name,selection+cut+isoCut);
+    h[9][i]->Scale(1./totalEvents);
 
   }
 
@@ -234,10 +234,6 @@ void make_sigmaetaeta(const bool save=false,
     {
       TString savename = "plot_sigmaetaeta_Bar";
       savename += i;
-      // savename += ".eps";
-      // cBar[i]->SaveAs(savename);
-      // savename += ".C";
-      // cBar[i]->SaveAs(savename);
       saveCanvas(cBar[i],savename);
     }
 
@@ -266,10 +262,6 @@ void make_sigmaetaeta(const bool save=false,
     {
       TString savename = "plot_sigmaetaeta_End";
       savename += i;
-      // savename += ".eps";
-      // cEnd[i]->SaveAs(savename);
-      // savename += ".C";
-      // cEnd[i]->SaveAs(savename);
       saveCanvas(cEnd[i],savename);
     }
 
