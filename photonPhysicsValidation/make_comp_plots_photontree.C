@@ -16,17 +16,16 @@ void make_comp_plots_photontree(const bool save=false,
 				const bool doPilot=true,
 				const bool doMC = false,
 				const bool doData = false,
-				const char *dataName = "")
+				const char *pilotName = "",
+				const char *dataName = "",
+				const char *mcName = "")
 {
   TH1::SetDefaultSumw2();
 
   HiForest *pilotForest;
-  if(doPilot){    
-    pilotForest = new HiForest("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/PA2013_HiForest_Express_r0_pilot_minbias_v0.root",
-			       "pilotForest", cPPb, false);
+  if(doPilot){
+    pilotForest = new HiForest(pilotName, "pilotForest", cPPb, false);
   }
-
-  if(dataName == "") dataName = "/mnt/hadoop/cms/store/user/luck/pA2013_forests/PA2013_HiForest_Express_r210534_stablebeams_72bunch.root";
 
   HiForest *dataForest;
   if(doData){
@@ -35,8 +34,7 @@ void make_comp_plots_photontree(const bool save=false,
 
   HiForest *mcForest;
   if (doMC){
-    mcForest = new HiForest ("/mnt/hadoop/cms/store/user/luck/pA2013_MC/HiForest_pPb_Hijing_NEWFIX_v2.root",
-			     "mcForest", cPPb, true);
+    mcForest = new HiForest(mcName, "mcForest", cPPb, true);
   }
 
   const Int_t numPlots = 13;
@@ -68,8 +66,8 @@ void make_comp_plots_photontree(const bool save=false,
       if(!doData) continue;
       //tree = dataPhotonTree;
       forest = dataForest;
-      selection = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
-      const char *selectionc = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      selection = "(skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      const char *selectionc = "(skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
       totalEvents = forest->tree->GetEntries(selectionc);
       marker = 20;
       linecolor = (int)kBlack;
