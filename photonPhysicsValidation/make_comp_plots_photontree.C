@@ -22,7 +22,7 @@ void make_comp_plots_photontree(const bool save=false,
 
   HiForest *pilotForest;
   if(doPilot){    
-    pilotForest = new HiForest("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/forest200kHz.root",
+    pilotForest = new HiForest("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/PA2013_HiForest_Express_r0_pilot_minbias_v0.root",
 			       "pilotForest", cPPb, false);
   }
 
@@ -57,10 +57,9 @@ void make_comp_plots_photontree(const bool save=false,
     if(i == 0)
     {
       if(!doPilot) continue;
-      //tree = pilotPhotonTree;
       forest = pilotForest;
-      selection = "(1==1)";
       const char *selectionc = "(1==1)";
+      selection = selectionc;
       marker = 24;
       linecolor = (int)kBlack;
       ii='0';
@@ -117,7 +116,8 @@ void make_comp_plots_photontree(const bool save=false,
     h[2][i]->SetYTitle(Yname);
     forest->tree->Project(name+ii,name,selection);
     h[2][i]->Scale(1./totalEvents);
-    h[2][i]->SetAxisRange(0, 0.05, "Y");
+    //h[2][i]->SetAxisRange(0, 0.05, "Y");
+    h[2][i]->SetMinimum(0);
 
     name = "hadronicOverEm";
     h[3][i] = new TH1D(name+ii, "",
@@ -246,13 +246,13 @@ void make_comp_plots_photontree(const bool save=false,
     c[i]->cd();
     leg = new TLegend(0.8,0.6,0.9,0.7);
     leg->SetFillColor(0);
-    if(doPilot){
-      leg->AddEntry(h[i][0],pilotLabel,"p");
-      h[i][0]->DrawClone("E");
-    }
     if(doData){
       leg->AddEntry(h[i][1],dataLabel,"p");
-      h[i][1]->DrawClone("E same");
+      h[i][1]->DrawClone("E");
+    }
+    if(doPilot){
+      leg->AddEntry(h[i][0],pilotLabel,"p");
+      h[i][0]->DrawClone("E same");
     }
     if(doMC){
       leg->AddEntry(h[i][2],MCLabel,"l");

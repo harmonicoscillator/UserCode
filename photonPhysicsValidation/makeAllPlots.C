@@ -8,16 +8,16 @@ void makeAllPlots()
 {
   const bool save = true;
   
-  const bool doPilot = false;
+  const bool doPilot = true;
   const bool doMC = true;
   const bool doData = true;
-  const TString dataForest = "/mnt/hadoop/cms/store/user/luck/pA2013_forests/PA2013_HiForest_Express_r210534_stablebeams_72bunch.root";
+  const TString dataForest = "/mnt/hadoop/cms/store/user/luck/pA2013_forests/PA2013_HiForest_Express_r210635_autoforest_v2.root";
   
-  // make_comp_plots_photontree(save,
-  // 			     doPilot,
-  // 			     doMC,
-  // 			     doData,
-  // 			     dataForest);
+  make_comp_plots_photontree(save,
+  			     doPilot,
+  			     doMC,
+  			     doData,
+  			     dataForest);
   
   make_comp_plots_rechittree(save,
   			     doPilot,
@@ -32,15 +32,15 @@ void makeAllPlots()
   			     doData,
   			     dataForest,
   			     "ee");
-  // make_etaphi_photontree(save,
-  // 			 doPilot,
-  // 			 doMC,
-  // 			 doData,
-  // 			 dataForest);
+  make_etaphi_photontree(save,
+  			 doPilot,
+  			 doMC,
+  			 doData,
+  			 dataForest);
 
-  // make_sigmaetaeta(save,
-  // 		   doPilot,
-  // 		   doMC,
-  // 		   doData,
-  // 		   dataForest);
+  make_sigmaetaeta(save,
+  		   doPilot,
+  		   doMC,
+  		   doData,
+  		   dataForest);
 }

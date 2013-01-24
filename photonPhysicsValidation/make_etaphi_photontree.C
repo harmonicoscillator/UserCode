@@ -22,7 +22,7 @@ void make_etaphi_photontree(const bool save=false,
 
   HiForest *pilotForest;
   if(doPilot){    
-    pilotForest = new HiForest("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/forest200kHz.root",
+    pilotForest = new HiForest("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/PA2013_HiForest_Express_r0_pilot_minbias_v0.root",
 			       "pilotForest", cPPb, false);
   }
 

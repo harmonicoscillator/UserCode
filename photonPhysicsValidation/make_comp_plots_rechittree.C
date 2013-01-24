@@ -25,7 +25,7 @@ void make_comp_plots_rechittree(const bool save=false,
 
   HiForest *pilotForest;
   if(doPilot){    
-    pilotForest = new HiForest("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/forest200kHz.root",
+    pilotForest = new HiForest("/mnt/hadoop/cms/store/user/luck/pA2013_pilot/PA2013_HiForest_Express_r0_pilot_minbias_v0.root",
 			       "pilotForest", cPPb, false);
   }
 
@@ -45,7 +45,6 @@ void make_comp_plots_rechittree(const bool save=false,
   const Int_t numPlots = 4;
   TH1D *h[numPlots][3];
   TH2D *etaphi[3];
-  //TString name[numPlots];
   TString name;
   TCanvas *c2[3];
 
@@ -66,8 +65,8 @@ void make_comp_plots_rechittree(const bool save=false,
       marker = 24;
       markerColor = (int)kBlack;
       ii='0';
-      selection = "(1==1)";
       const char *selectionc = "(1==1)";
+      selection = selectionc;
       totalEvents = forest->tree->GetEntries(selectionc);
     } else if (i==1) {
       if(!doData) continue;
@@ -131,7 +130,8 @@ void make_comp_plots_rechittree(const bool save=false,
     h[3][i]->SetYTitle(Yname);
     forest->tree->Project(name+ii,name,selection+cut);
     h[3][i]->Scale(1./totalEvents);
-    h[3][i]->SetAxisRange(0, 0.1, "Y");
+    //h[3][i]->SetAxisRange(0, 0.1, "Y");
+    h[3][i]->SetMinimum(0);
 
     TString canvName = "c2etaphi"+section;
     canvName += i;
@@ -174,7 +174,9 @@ void make_comp_plots_rechittree(const bool save=false,
     }
     if(doPilot){
       leg->AddEntry(h[i][0],pilotLabel,"p");
-      h[i][0]->DrawClone("E same");
+      if(doData)
+	h[i][0]->DrawClone("E same");
+      else h[i][0]->DrawClone("E");
     }
     if(doMC){
       leg->AddEntry(h[i][2],MCLabel,"l");
