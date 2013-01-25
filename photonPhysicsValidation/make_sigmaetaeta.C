@@ -64,8 +64,8 @@ void make_sigmaetaeta(const bool save=false,
       if(!doData) continue;
       forest = dataForest;
       ii='1';
-      selection = "(skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
-      const char *selectionc = "(skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      const char *selectionc = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      selection = selectionc;
       totalEvents = forest->tree->GetEntries(selectionc);
       marker = 20;
     } else {

@@ -59,7 +59,7 @@ void make_etaphi_photontree(const bool save=false,
       if(!doData) continue;
       forest = dataForest;
       ii='1';
-      selection = "(skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      selection = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
     } else {
       if(!doMC) continue;
       forest = mcForest;

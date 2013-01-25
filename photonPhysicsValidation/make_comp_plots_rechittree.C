@@ -72,8 +72,8 @@ void make_comp_plots_rechittree(const bool save=false,
       marker = 20;
       markerColor = (int)kBlack;
       ii='1';
-      selection = "(skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
-      const char *selectionc = "(skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      const char *selectionc = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      selection = selectionc;
       totalEvents = forest->tree->GetEntries(selectionc);
     } else {
       if(!doMC) continue;
