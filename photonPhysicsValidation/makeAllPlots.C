@@ -6,7 +6,7 @@
 
 void makeAllPlots()
 {
-  const bool save = true;
+  const bool save = false;
   
   const bool doPilot = true;
   const bool doMC = true;
@@ -19,35 +19,18 @@ void makeAllPlots()
 
   //CERN files
   const TString pilotForest = "root://eoscms//eos/cms/store/group/phys_heavyions/velicanu/forest/PA2013_HiForest_Express_r0_pilot_minbias_v0.root";
-  //const TString dataForest = "root://eoscms//eos/cms/store/group/phys_heavyions/velicanu/forest/PA2013_HiForest_PromptRecofirstPR_forestv51.root";
-  const TString dataForest = "/d101/velicanu/merged/PA2013_HiForest_PromptRecofirstPR_forestv51.root";
-  const TString mcForest = "root://eoscms//eos/cms/store/group/phys_heavyions/azsigmon/HiForest_pPb_Hijing_NEWFIX_v2.root";
+  const TString dataForest = "root://eoscms//eos/cms/store/group/phys_heavyions/velicanu/forest/PA2013_HiForest_Express_r211256_autoforest_v63.root";
+  //const TString mcForest = "root://eoscms//eos/cms/store/group/phys_heavyions/azsigmon/HiForest_pPb_Hijing_NEWFIX_v2.root";
+  const TString mcForest = "root://eoscms//eos/cms/store/caf/user/dgulhan/pPb_Hijing_MB01/prod09/HiForest_v55_merged02/merged_forest_0.root";
   
   make_comp_plots_photontree(save,
-  			     doPilot,
-  			     doMC,
-  			     doData,
+			     doPilot,
+			     doMC,
+			     doData,
 			     pilotForest,
-  			     dataForest,
+			     dataForest,
 			     mcForest);
-  
-  make_comp_plots_rechittree(save,
-  			     doPilot,
-  			     doMC,
-  			     doData,
-  			     pilotForest,
-  			     dataForest,
-  			     mcForest,
-  			     "eb");
 
-  make_comp_plots_rechittree(save,
-  			     doPilot,
-  			     doMC,
-  			     doData,
-  			     pilotForest,
-  			     dataForest,
-  			     mcForest,
-  			     "ee");
   make_etaphi_photontree(save,
   			 doPilot,
   			 doMC,
@@ -63,4 +46,23 @@ void makeAllPlots()
   		   pilotForest,
   		   dataForest,
   		   mcForest);
+  
+  // make_comp_plots_rechittree(save,
+  // 			     doPilot,
+  // 			     doMC,
+  // 			     doData,
+  // 			     pilotForest,
+  // 			     dataForest,
+  // 			     mcForest,
+  // 			     "eb");
+
+  // make_comp_plots_rechittree(save,
+  // 			     doPilot,
+  // 			     doMC,
+  // 			     doData,
+  // 			     pilotForest,
+  // 			     dataForest,
+  // 			     mcForest,
+  // 			     "ee");
+
 }
