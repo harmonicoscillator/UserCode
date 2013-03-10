@@ -10,7 +10,7 @@
 #include "TMath.h"
 #include "alexUtils.h"
 
-#include "../HiForest_V2_latest/hiForest.h"
+#include "../HiForest_V3/hiForest.h"
 
 void make_etaphi_photontree(const bool save=false,
 			    const bool doPilot=true,
@@ -29,7 +29,7 @@ void make_etaphi_photontree(const bool save=false,
 
   HiForest *dataForest;
   if(doData){
-    dataForest = new HiForest(dataName, "dataForest", cPPb, false);
+    dataForest = new HiForest(dataName, "dataForest", cPP, false);
   }
 
   HiForest *mcForest;
@@ -54,17 +54,22 @@ void make_etaphi_photontree(const bool save=false,
       if(!doPilot) continue;
       forest = pilotForest;
       ii='0';
-      selection = "(1==1)";
+      //selection = "(1==1)";
+      //selection = "(hadronicOverEm)";
+      selection = "(skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
     } else if (i==1) {
       if(!doData) continue;
       forest = dataForest;
       ii='1';
-      selection = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      //selection = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      selection = "(1==1)";
+	//selection = "(hadronicOverEm)";
     } else {
       if(!doMC) continue;
       forest = mcForest;
       ii='2';
-      selection = "(1==1)";
+      //selection = "(1==1)";
+      selection = "(skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
     }
 
     TString canvName = "cetaphi";
@@ -77,7 +82,12 @@ void make_etaphi_photontree(const bool save=false,
 			 36, -TMath::Pi(), TMath::Pi() );    
     etaphi[i]->SetXTitle("#eta");
     etaphi[i]->SetYTitle("#phi");
-    forest->tree->Project(name+ii,"phi:eta",selection);
+    //if(i==1)
+      forest->tree->Project(name+ii,"phi:eta",selection);
+      //else if(i==0)
+      //   forest->tree->Project(name+ii,"phi:(-eta)",selection);
+
+    etaphi[i]->Scale(1./etaphi[i]->GetEntries());
     etaphi[i]->Draw("colz");
     if(save)
     {
@@ -91,11 +101,12 @@ void make_etaphi_photontree(const bool save=false,
     c2[i]->cd();
     name = "swissCrx";
     swisscross[i] = new TH2D(name+ii, "",
-			     100, -10, 10,
-			     100, -1, 1.1 );
+    			     100, -10, 10,
+    			     100, -1, 1.1 );
     swisscross[i]->SetXTitle("Reco. Time of Seed (ns)");
     swisscross[i]->SetYTitle("Swiss Crx Var.");
     forest->tree->Project(name+ii,"swissCrx:seedTime",selection);
+    swisscross[i]->Scale(1./swisscross[i]->GetEntries());
     swisscross[i]->Draw("colz");
 
     if(save)
@@ -107,4 +118,13 @@ void make_etaphi_photontree(const bool save=false,
     
 
   }
+
+  
+
+  // c[0] = new TCanvas("ratio","",600,600);
+  // c[0]->cd();
+  // etaphi[1]->Divide(etaphi[0]);
+  // etaphi[1]->GetZaxis()->SetRangeUser(0,2);
+  // etaphi[1]->DrawClone("colz");
+  
 }

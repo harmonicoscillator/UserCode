@@ -10,7 +10,7 @@
 #include "TMath.h"
 #include "alexUtils.h"
 
-#include "../HiForest_V2_latest/hiForest.h"
+#include "../HiForest_V3/hiForest.h"
 
 void make_sigmaetaeta(const bool save=false,
 		      const bool doPilot=true,
@@ -29,7 +29,7 @@ void make_sigmaetaeta(const bool save=false,
 
   HiForest *dataForest;
   if(doData){
-    dataForest = new HiForest(dataName, "dataForest", cPPb, false);
+    dataForest = new HiForest(dataName, "dataForest", cPP, false);
   }
 
   HiForest *mcForest;
@@ -56,7 +56,8 @@ void make_sigmaetaeta(const bool save=false,
       if(!doPilot) continue;
       forest = pilotForest;
       ii='0';
-      const char *selectionc = "(1==1)";
+      const char *selectionc = "(skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+//"(1==1)";
       selection = selectionc;
       totalEvents = forest->tree->GetEntries(selectionc);
       marker = 24;
@@ -64,7 +65,8 @@ void make_sigmaetaeta(const bool save=false,
       if(!doData) continue;
       forest = dataForest;
       ii='1';
-      const char *selectionc = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      //const char *selectionc = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      const char *selectionc = "(1==1)";
       selection = selectionc;
       totalEvents = forest->tree->GetEntries(selectionc);
       marker = 20;
@@ -72,8 +74,8 @@ void make_sigmaetaeta(const bool save=false,
       if(!doMC) continue;
       forest = mcForest;
       ii='2';
-      selection = "(1==1)";
-      const char *selectionc = "(1==1)";
+      const char *selectionc = "(skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      selection = selectionc;
       totalEvents = forest->tree->GetEntries(selectionc);
       marker = 25;
     }
@@ -214,7 +216,7 @@ void make_sigmaetaeta(const bool save=false,
     canvName+=i;
     c[i] = new TCanvas(canvName,"",500,500);
     c[i]->cd();
-    leg = new TLegend(0.8,0.6,0.9,0.7);
+    leg = new TLegend(0.7,0.6,0.85,0.7);
     leg->SetFillColor(0);
     if(doData){
       leg->AddEntry(h[i][1],dataLabel,"p");

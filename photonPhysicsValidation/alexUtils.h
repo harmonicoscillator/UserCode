@@ -5,8 +5,8 @@
 #include "TCanvas.h"
 
 void saveCanvas(TCanvas *c, TString name){
-  TString date = "_20130201_";
-  TString run = "";
+  TString date = "_201302013_";
+  TString run = "_211792_";
   
   c->SaveAs(name+date+run+".eps");
   // c->SaveAs(name+date+run+".pdf");

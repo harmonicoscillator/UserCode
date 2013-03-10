@@ -10,7 +10,7 @@
 #include "TMath.h"
 #include "alexUtils.h"
 
-#include "../HiForest_V2_latest/hiForest.h"
+#include "../HiForest_V3/hiForest.h"
 
 void make_comp_plots_photontree(const bool save=false,
 				const bool doPilot=true,
@@ -29,7 +29,7 @@ void make_comp_plots_photontree(const bool save=false,
 
   HiForest *dataForest;
   if(doData){
-    dataForest = new HiForest(dataName, "dataForest", cPPb, false);
+    dataForest = new HiForest(dataName, "dataForest", cPP, false);
   }
 
   HiForest *mcForest;
@@ -56,7 +56,8 @@ void make_comp_plots_photontree(const bool save=false,
     {
       if(!doPilot) continue;
       forest = pilotForest;
-      const char *selectionc = "(1==1)";
+      //const char *selectionc = "(1==1)";
+      const char *selectionc = "(skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
       selection = selectionc;
       marker = 24;
       linecolor = (int)kBlack;
@@ -66,7 +67,8 @@ void make_comp_plots_photontree(const bool save=false,
       if(!doData) continue;
       //tree = dataPhotonTree;
       forest = dataForest;
-      const char *selectionc = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      //const char *selectionc = "(hltTree.HLT_PAZeroBiasPixel_SingleTrack_v1 && skim.pHBHENoiseFilter && skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+      const char *selectionc = "(1==1)";
       selection = selectionc;
       totalEvents = forest->tree->GetEntries(selectionc);
       marker = 20;
@@ -76,8 +78,9 @@ void make_comp_plots_photontree(const bool save=false,
       if(!doMC) continue;
       //tree = mcChain;
       forest = mcForest;
-      selection = "(1==1)";
-      const char *selectionc = "(1==1)";
+      const char *selectionc = "(skim.phfPosFilter1 && skim.phfNegFilter1 && skim.phltPixelClusterShapeFilter && skim.pprimaryvertexFilter)";
+//"(1==1)";
+      selection = selectionc;
       totalEvents = forest->tree->GetEntries(selectionc);
       marker = 25;
       linecolor = (int)kRed;
@@ -86,7 +89,7 @@ void make_comp_plots_photontree(const bool save=false,
 
     name = "pt";
     h[0][i] = new TH1D(name+ii,"",
-		       60, 0, 130);
+    		       60, 0, 130);
     h[0][i]->SetMarkerStyle(marker);
     h[0][i]->SetLineColor(linecolor);
     h[0][i]->SetXTitle("p_{T} (GeV)");
@@ -97,7 +100,7 @@ void make_comp_plots_photontree(const bool save=false,
 		 
     name = "eta";
     h[1][i] = new TH1D(name+ii,"",
-		       40,-5,5);
+    		       40,-5,5);
     h[1][i]->SetMarkerStyle(marker);
     h[1][i]->SetLineColor(linecolor);
     h[1][i]->SetXTitle("#eta");
@@ -107,7 +110,7 @@ void make_comp_plots_photontree(const bool save=false,
     
     name = "phi";
     h[2][i] = new TH1D(name+ii, "",
-		      36,-TMath::Pi(),TMath::Pi() );
+    		      36,-TMath::Pi(),TMath::Pi() );
     h[2][i]->SetMarkerStyle(marker);
     h[2][i]->SetLineColor(linecolor);
     h[2][i]->SetXTitle("#phi");
@@ -129,7 +132,7 @@ void make_comp_plots_photontree(const bool save=false,
 
     name = "cc4";
     h[4][i] = new TH1D(name+ii, "",
-		      50,-20,30 );
+    		      50,-20,30 );
     h[4][i]->SetMarkerStyle(marker);
     h[4][i]->SetLineColor(linecolor);
     h[4][i]->SetXTitle("Ecal Iso (cc4) (GeV)");
@@ -139,7 +142,7 @@ void make_comp_plots_photontree(const bool save=false,
 
     name = "cr4";
     h[5][i] = new TH1D(name+ii, "",
-		      50,-20,30 );
+    		      50,-20,30 );
     h[5][i]->SetMarkerStyle(marker);
     h[5][i]->SetLineColor(linecolor);
     h[5][i]->SetXTitle("Hcal Iso (cr4) (GeV)");
@@ -149,7 +152,7 @@ void make_comp_plots_photontree(const bool save=false,
 
     name = "ct4PtCut20";
     h[6][i] = new TH1D(name+ii, "",
-		      50,-20,30 );
+    		      50,-20,30 );
     h[6][i]->SetMarkerStyle(marker);
     h[6][i]->SetLineColor(linecolor);
     h[6][i]->SetXTitle("Track Iso (ct4PtCut20) (GeV)");
@@ -161,7 +164,7 @@ void make_comp_plots_photontree(const bool save=false,
     add = "Bar";
     cut = "&& (abs(eta) < 1.479)";
     h[7][i] = new TH1D(name+add+ii, "",
-		      50,-2,15 );
+    		      50,-2,15 );
     h[7][i]->SetMarkerStyle(marker);
     h[7][i]->SetLineColor(linecolor);
     h[7][i]->SetXTitle("Ecal Iso Barrel (pp style) (GeV)");
@@ -173,7 +176,7 @@ void make_comp_plots_photontree(const bool save=false,
     add = "End";
     cut = "&& (abs(eta) > 1.479)";
     h[8][i] = new TH1D(name+add+ii, "",
-		      50,-2,15 );
+    		      50,-2,15 );
     h[8][i]->SetMarkerStyle(marker);
     h[8][i]->SetLineColor(linecolor);
     h[8][i]->SetXTitle("Ecal Iso Endcap (pp style) (GeV)");
@@ -185,7 +188,7 @@ void make_comp_plots_photontree(const bool save=false,
     add = "Bar";
     cut = "&& (abs(eta) < 1.479)";
     h[9][i] = new TH1D(name+add+ii, "",
-		      50,-2,15 );
+    		      50,-2,15 );
     h[9][i]->SetMarkerStyle(marker);
     h[9][i]->SetLineColor(linecolor);
     h[9][i]->SetXTitle("Hcal Iso Barrel (pp style) (GeV)");
@@ -197,7 +200,7 @@ void make_comp_plots_photontree(const bool save=false,
     add = "End";
     cut = "&& (abs(eta) > 1.479)";
     h[10][i] = new TH1D(name+add+ii, "",
-		      50,-2,15 );
+    		      50,-2,15 );
     h[10][i]->SetMarkerStyle(marker);
     h[10][i]->SetLineColor(linecolor);
     h[10][i]->SetXTitle("Hcal Iso Endcap (pp style) (GeV)");
@@ -209,7 +212,7 @@ void make_comp_plots_photontree(const bool save=false,
     add = "Bar";
     cut = "&& (abs(eta) < 1.479)";
     h[11][i] = new TH1D(name+add+ii, "",
-		      50,-2,15 );
+    		      50,-2,15 );
     h[11][i]->SetMarkerStyle(marker);
     h[11][i]->SetLineColor(linecolor);
     h[11][i]->SetXTitle("Track Iso Barrel (pp style) (GeV)");
@@ -221,7 +224,7 @@ void make_comp_plots_photontree(const bool save=false,
     add = "End";
     cut = "&& (abs(eta) > 1.479)";
     h[12][i] = new TH1D(name+add+ii, "",
-		      50,-2,15 );
+    		      50,-2,15 );
     h[12][i]->SetMarkerStyle(marker);
     h[12][i]->SetLineColor(linecolor);
     h[12][i]->SetXTitle("Track Iso Endcap (pp style) (GeV)");
@@ -266,6 +269,11 @@ void make_comp_plots_photontree(const bool save=false,
       TString savename = "plot_photons_";
       savename += i;
       saveCanvas(c[i],savename);
-    }
+    }    
   }
+  // c[0] = new TCanvas("ratio","",600,600);
+  // c[0]->cd();
+  // h[3][1]->Divide(h[3][0]);
+  // h[3][1]->SetYTitle("(211390)/(211256)");
+  // h[3][1]->DrawClone("E");
 }
